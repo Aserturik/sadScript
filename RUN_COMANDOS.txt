@@ -1,0 +1,9 @@
+bison -d a_sintactico.y
+flex a_lexico.l
+cc lex.yy.c a_sintactico.tab.c -o raspucode -lfl -lm
+
+-- ejecutar archivos del lenguaje
+./raspucode ejemplo.prog
+
+-- permisos si son necesarios
+chmod +x raspucode
