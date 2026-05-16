@@ -332,7 +332,7 @@ int verificarIncrementoDecremento(int tipo) {
 /* Tipos no terminales */
 %type <numero_entero> tipo tipo_funcion llamada_funcion incremento_decremento valor_variable declaracion_instancia
 %type <datos_expresion> datos_valor expresion_operacion
-%type <numero_entero> retorno bloque_switch linea_switch expresion_bloque
+%type <numero_entero> retorno bloque_switch linea_switch
 %type <numero_entero> declaracion asignacion bucle condicional excepcion 
 %type <numero_entero> declaracion_lanzar declaracion_afirmar
 %type <numero_entero> try_catch
@@ -342,8 +342,7 @@ int verificarIncrementoDecremento(int tipo) {
 /* Regla inicial */
 programa:
     /* vacio */ 
-    | programa expresion
-    | programa expresion_con_bloque
+    | programa sentencia
     | programa error {
         printf("Error sintáctico recuperado en línea %d\n", numeroLinea);
         hayErroresSintacticos = true;
@@ -351,18 +350,30 @@ programa:
     }
     ;
 
-expresion:
+sentencia:
+    sentencia_simple PUNTO_COMA
+    | sentencia_compuesta
+    ;
+
+sentencia_simple:
     declaracion
     | incremento_decremento
     | llamada_funcion
     | asignacion
+    | retorno
+    | declaracion_lanzar
+    | declaracion_afirmar
+    | PRINT PAREN_IZQ expresion_operacion PAREN_DER
+    | BREAK
+    | CONTINUE
     ;
 
-expresion_con_bloque:
-    bucle
+sentencia_compuesta:
+    funcion
+    | bucle
     | condicional
     | excepcion
-    | funcion
+    | bloque_estandar_delimitado
     ;
 
 /* DECLARACIONES */
@@ -424,47 +435,29 @@ declaracion_funcion:
 
 bloque:
     /* vacio */
-    | bloque linea_bloque
-    ;
-
-linea_bloque:
-    expresion_bloque
-    ;
-
-expresion_bloque:
-    declaracion { $$ = 0; }
-    | PRINT PAREN_IZQ expresion_operacion PAREN_DER { $$ = 0; }
-    | BREAK { $$ = 0; }
-    | CONTINUE { $$ = 0; }
-    | incremento_decremento { $$ = $1; }
-    | llamada_funcion { $$ = $1; }
-    | asignacion { $$ = 0; }
-    | bucle { $$ = 0; }
-    | condicional { $$ = 0; }
-    | excepcion { $$ = 0; }
-    | retorno {
-        if (nivelAlcance == 1) {
-            tieneRetorno = true;
-        }
-        if (tipoFuncionActual != -1 && $1 == -1 && $1 != 0) {
-            printf("Error de tipo incompatible en línea %d: la función no tiene valor de retorno\n", numeroLinea);
-            hayErroresSintacticos = true;
-        } else if (tipoFuncionActual == -1 && $1 != -1) {
-            printf("Error de tipo incompatible en línea %d: la función es void y tiene valor de retorno\n", numeroLinea);
-            hayErroresSintacticos = true;
-        } else if (tipoFuncionActual != -1 && tipoFuncionActual != $1 && $1 != 0) {
-            printf("Error de tipo incompatible en línea %d: valor de retorno no compatible con el tipo de retorno de la función\n", numeroLinea);
-            hayErroresSintacticos = true;
-        }
-        $$ = $1;
-    }
-    | declaracion_lanzar { $$ = 0; }
-    | declaracion_afirmar { $$ = 0; }
+    | bloque sentencia
     ;
 
 retorno:
-    RETURN expresion_operacion { $$ = $2.tipo; }
-    | RETURN { $$ = -1; }
+    RETURN expresion_operacion {
+        if (nivelAlcance == 1) {
+            tieneRetorno = true;
+        }
+        if (tipoFuncionActual != -1 && $2.tipo == 0) {
+            printf("Error de tipo incompatible en línea %d: la función no tiene valor de retorno\n", numeroLinea);
+            hayErroresSintacticos = true;
+        } else if (tipoFuncionActual == -1 && $2.tipo != 0) {
+            printf("Error de tipo incompatible en línea %d: la función es void y tiene valor de retorno\n", numeroLinea);
+            hayErroresSintacticos = true;
+        } else if (tipoFuncionActual != -1 && tipoFuncionActual != $2.tipo && $2.tipo != 0) {
+            printf("Error de tipo incompatible en línea %d: valor de retorno no compatible con el tipo de retorno de la función\n", numeroLinea);
+            hayErroresSintacticos = true;
+        }
+        $$ = $2.tipo;
+    }
+    | RETURN {
+        $$ = -1;
+    }
     ;
 
 declaracion_lanzar:
