@@ -1,3 +1,5 @@
 dolor edad = 20;
-confesar("me faltan cierres");
-@
+confesar("segundo script");
+si_duele (edad == 20) {
+    confesar("todo bien");
+}

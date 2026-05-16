@@ -1,2 +1,7 @@
-si_duele (edad > 18) {
-    confesar("esto queda abierto");
+dolor edad = 21;
+
+intentar_sentir {
+    confesar("entro y me sostengo");
+} romperse(error) {
+    confesar("sigo igual");
+}

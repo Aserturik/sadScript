@@ -45,6 +45,7 @@ bool existeSimbolo(char* nombre, bool esFuncion);
 void eliminarSimbolosDelAlcance();
 void iniciarBloque();
 void terminarBloque();
+void limpiarTablaSimbolos();
 
 /* Funciones para verificación de tipos */
 int verificarOperacionNumerica(int tipo1, int tipo2);
@@ -336,6 +337,7 @@ int verificarIncrementoDecremento(int tipo) {
 %type <numero_entero> declaracion asignacion bucle condicional excepcion 
 %type <numero_entero> declaracion_lanzar declaracion_afirmar
 %type <numero_entero> try_catch
+%type <numero_entero> vector_literal matriz_literal vector_items matriz_rows valor_atomico
 
 %%
 
@@ -707,6 +709,44 @@ datos_valor:
         $$.tipo = $1; 
         $$.tieneValor = 0; 
     }
+    | vector_literal {
+        $$.tipo = $1;
+        $$.tieneValor = 0;
+    }
+    | matriz_literal {
+        $$.tipo = $1;
+        $$.tieneValor = 0;
+    }
+    ;
+
+valor_atomico:
+    LITERAL_CARACTER { $$ = 1; }
+    | LITERAL_ENTERO { $$ = 2; }
+    | LITERAL_DECIMAL { $$ = 3; }
+    | TRUE { $$ = 4; }
+    | FALSE { $$ = 4; }
+    | LITERAL_CADENA { $$ = 5; }
+    | NULO { $$ = 0; }
+    | valor_variable { $$ = $1; }
+    | PAREN_IZQ expresion_operacion PAREN_DER { $$ = $2.tipo; }
+    ;
+
+vector_literal:
+    CORCHETE_IZQ vector_items CORCHETE_DER { $$ = 6; }
+    ;
+
+vector_items:
+    valor_atomico
+    | valor_atomico COMA vector_items
+    ;
+
+matriz_literal:
+    CORCHETE_IZQ matriz_rows CORCHETE_DER { $$ = 7; }
+    ;
+
+matriz_rows:
+    vector_literal
+    | vector_literal COMA matriz_rows
     ;
 
 valor_variable:

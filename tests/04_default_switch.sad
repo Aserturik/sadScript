@@ -1,3 +1,5 @@
+dolor edad = 18;
+
 segun_mi_animo (edad) {
     caso 18:
         confesar("ya casi");

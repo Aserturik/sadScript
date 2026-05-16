@@ -2,8 +2,8 @@ dolor edad = 20;
 vacio promedio = 3.14;
 esperanza seguir_vivo = vivo;
 recuerdo mensaje = "nadie me entiende";
-cicatriz dolor numeros = [1, 2, 3, 4];
-trauma vacio sombras = [[1.2, 3.4], [5.6, 7.8]];
+cicatriz numeros = [1, 2, 3, 4];
+trauma sombras = [[1.2, 3.4], [5.6, 7.8]];
 
 si_duele (edad > 18) {
     confesar("ya soy adulto");
