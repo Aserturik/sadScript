@@ -1,0 +1,6 @@
+segun_mi_animo (edad) {
+    caso 18:
+        confesar("ya casi");
+    por_defecto_mio:
+        confesar("sin rumbo");
+}

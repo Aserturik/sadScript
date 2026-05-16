@@ -169,8 +169,17 @@ sadScript debe sentirse triste, cansado y existencial por fuera, pero seguir sie
 - `T04_control_flujo`: if anidado, while y bloques con shadowing.
 - `T05_funciones`: parámetros, retorno, recursión y sobrecarga por firma.
 - `T06_excepciones`: try/catch/throw y assert.
+- `T07_switch_default`: `segun_mi_animo` con `caso` y `por_defecto_mio`.
 
-### 7.2 Casos negativos
+### 7.2 Scripts de prueba
+
+- `tests/01_happy.sad`: programa válido con declaraciones, colecciones, `if`, `while` y función.
+- `tests/02_lexer_error.sad`: error léxico intencional con carácter inválido.
+- `tests/03_syntax_error.sad`: error sintáctico por bloque sin cierre.
+- `tests/04_default_switch.sad`: `switch` con `caso` y `por_defecto_mio`.
+- `build.sh`: compila lexer y parser en `sadScript` y deja el binario ejecutable.
+
+### 7.3 Casos negativos
 
 - `T07_lexico_invalido`: caracteres fuera de alfabeto o strings mal cerradas.
 - `T08_sintaxis_incompleta`: llaves, paréntesis o punto y coma faltantes.
@@ -179,7 +188,7 @@ sadScript debe sentirse triste, cansado y existencial por fuera, pero seguir sie
 - `T11_retorno_invalido`: retorno fuera de función.
 - `T12_error_asertivo`: afirmación falsa con línea reportada.
 
-### 7.3 Criterios de aceptación
+### 7.4 Criterios de aceptación
 
 - El lexer produce tokens reservados correctos y distingue identificadores.
 - El parser acepta programas válidos completos sin conflictos abiertos.
