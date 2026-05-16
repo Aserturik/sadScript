@@ -63,47 +63,41 @@ COMENTARIO_FIN      \*\/
 <COMENTARIO_MULTI>.                     { /* Ignorar contenido del comentario */ }
 
                         /* PALABRAS RESERVADAS - TIPOS DE DATOS */
-entero                                  { return TIPO_ENTERO; }
-decimal                                 { return TIPO_DECIMAL; }
-booleano                               { return TIPO_BOOLEANO; }
-cadena                                 { return TIPO_CADENA; }
-caracter                               { return TIPO_CARACTER; }
-vector                                 { return TIPO_VECTOR; }
-matriz                                 { return TIPO_MATRIZ; }
-vacio                                  { return TIPO_VACIO; }
+ confesar                               { return PRINT; }
+ dolor                                   { return ENTERO; }
+ vacio                                  { return FLOTANTE; }
+ esperanza                              { return BOOLEANO; }
+ recuerdo                               { return CADENA; }
+ cicatriz                               { return VECTOR; }
+ trauma                                 { return MATRIZ; }
 
                         /* PALABRAS RESERVADAS - CONTROL DE FLUJO */
-si                                     { return SI; }
-sino                                   { return SINO; }
-mientras                               { return MIENTRAS; }
-para                                   { return PARA; }
-hacer                                  { return HACER; }
-repetir                                { return REPETIR; }
-hasta                                  { return HASTA; }
-segun                                  { return SEGUN; }
-caso                                   { return CASO; }
-defecto                                { return DEFECTO; }
-romper                                 { return ROMPER; }
-continuar                              { return CONTINUAR; }
-salir                                  { return SALIR; }
+ si_duele                                { return IF; }
+ si_no_duele                             { return ELSE; }
+ si_no_duele_pero                        { return ELSEIF; }
+ segun_mi_animo                          { return SWITCH; }
+ caso                                    { return CASE; }
+ por_defecto_mio                         { return DEFAULT; }
+ mientras_duela                          { return WHILE; }
+ para_que_duela                           { return FOR; }
+ aunque_no_quiera                        { return DO; }
+ cortarme                                { return BREAK; }
+ seguir_fingiendo                        { return CONTINUE; }
 
                         /* PALABRAS RESERVADAS - FUNCIONES Y MODULARIDAD */
-funcion                                { return FUNCION; }
-procedimiento                          { return PROCEDIMIENTO; }
-retornar                               { return RETORNAR; }
-devolver                               { return DEVOLVER; }
+ ritual                                  { return FUNCTION; }
+ regresar_a_llorar                       { return RETURN; }
 
                         /* PALABRAS RESERVADAS - MANEJO DE EXCEPCIONES */
-intentar                               { return INTENTAR; }
-capturar                               { return CAPTURAR; }
-finalmente                             { return FINALMENTE; }
-lanzar                                 { return LANZAR; }
-afirmar                                { return AFIRMAR; }
+ intentar_sentir                         { return TRY; }
+ romperse                                { return CATCH; }
+ colapsar                                { return THROW; }
+ afirmar                                 { return ASSERT; }
 
                         /* PALABRAS RESERVADAS - VALORES LÓGICOS */
-verdadero                              { return VERDADERO; }
-falso                                  { return FALSO; }
-nulo                                   { return NULO; }
+ vivo                                   { return TRUE; }
+ muerto                                 { return FALSE; }
+ nulo                                   { return NULO; }
 
                         /* OPERADORES ARITMÉTICOS */
 \+\+                                   { return OP_INCREMENTO; }
@@ -119,13 +113,6 @@ nulo                                   { return NULO; }
 \%\=                                   { return OP_MOD_ASIG; }
 \%                                     { return OP_MOD; }
 \*\*                                   { return OP_POTENCIA; }
-
-                        /* OPERADORES DE REDUCCIÓN */
-suma                                   { return OP_SUMA_REDUCCION; }
-producto                               { return OP_PROD_REDUCCION; }
-maximo                                 { return OP_MAX_REDUCCION; }
-minimo                                 { return OP_MIN_REDUCCION; }
-promedio                               { return OP_PROM_REDUCCION; }
 
                         /* OPERADORES LÓGICOS */
 \&\&                                   { return OP_Y_LOGICO; }
@@ -201,11 +188,10 @@ no                                     { return OP_NO_PALABRA; }
                                        }
 
                         /* MANEJO DE SALTOS DE LÍNEA Y ESPACIOS */
-\n                                     { 
-                                         numeroLinea++; 
-                                         numeroColumna = 1; 
-                                         return NUEVA_LINEA; 
-                                       }
+ \n                                     { 
+                                          numeroLinea++; 
+                                          numeroColumna = 1; 
+                                        }
 
 {espacio_blanco}+                      { 
                                          /* Actualizar columna y ignorar espacios */ 
@@ -247,4 +233,3 @@ void reiniciarAnalizadorLexico() {
     numeroLinea = 1;
     numeroColumna = 1;
 }
-

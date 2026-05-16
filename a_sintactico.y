@@ -296,24 +296,21 @@ int verificarIncrementoDecremento(int tipo) {
 /* Tokens básicos */
 %token PAREN_IZQ PAREN_DER LLAVE_IZQ LLAVE_DER CORCHETE_IZQ CORCHETE_DER
 %token COMA PUNTO_COMA DOS_PUNTOS PUNTO FLECHA FLECHA_DOBLE NUMERAL ARROBA
-%token NUEVA_LINEA
 
-/* Palabras reservadas - Tipos */
-%token TIPO_ENTERO TIPO_DECIMAL TIPO_BOOLEANO TIPO_CADENA TIPO_CARACTER
-%token TIPO_VECTOR TIPO_MATRIZ TIPO_VACIO
+/* Tokens internos */
+%token ENTERO FLOTANTE BOOLEANO CADENA VECTOR MATRIZ
 
-/* Palabras reservadas - Control de flujo */
-%token SI SINO MIENTRAS PARA HACER REPETIR HASTA SEGUN CASO DEFECTO
-%token ROMPER CONTINUAR SALIR
+/* Control de flujo */
+%token IF ELSE ELSEIF SWITCH CASE DEFAULT WHILE FOR DO BREAK CONTINUE
 
-/* Palabras reservadas - Funciones */
-%token FUNCION PROCEDIMIENTO RETORNAR DEVOLVER
+/* Funciones */
+%token FUNCTION RETURN PRINT
 
-/* Palabras reservadas - Excepciones */
-%token INTENTAR CAPTURAR FINALMENTE LANZAR AFIRMAR
+/* Excepciones y validación */
+%token TRY CATCH THROW ASSERT
 
-/* Palabras reservadas - Valores */
-%token VERDADERO FALSO NULO
+/* Valores */
+%token TRUE FALSE NULO
 
 /* Operadores */
 %token OP_SUMA OP_RESTA OP_MULT OP_DIV OP_MOD OP_POTENCIA
@@ -345,22 +342,13 @@ int verificarIncrementoDecremento(int tipo) {
 /* Regla inicial */
 programa:
     /* vacio */ 
-    | programa linea
-    ;
-
-linea:
-    nueva_linea
-    | expresion nueva_linea
-    | expresion_con_bloque
-    | error nueva_linea { 
-        printf("Error sintáctico recuperado en línea %d\n", numeroLinea); 
-        hayErroresSintacticos = true; 
-        yyerrok; 
+    | programa expresion
+    | programa expresion_con_bloque
+    | programa error {
+        printf("Error sintáctico recuperado en línea %d\n", numeroLinea);
+        hayErroresSintacticos = true;
+        yyerrok;
     }
-    ;
-
-nueva_linea:
-    NUEVA_LINEA
     ;
 
 expresion:
@@ -400,13 +388,12 @@ declaracion_instancia:
     ;
 
 tipo:
-    TIPO_CARACTER    { $$ = 1; }
-    | TIPO_ENTERO    { $$ = 2; }
-    | TIPO_DECIMAL   { $$ = 3; }
-    | TIPO_BOOLEANO  { $$ = 4; }
-    | TIPO_CADENA    { $$ = 5; }
-    | TIPO_VECTOR    { $$ = 6; }
-    | TIPO_MATRIZ    { $$ = 7; }
+    ENTERO       { $$ = 2; }
+    | FLOTANTE   { $$ = 3; }
+    | BOOLEANO   { $$ = 4; }
+    | CADENA     { $$ = 5; }
+    | VECTOR     { $$ = 6; }
+    | MATRIZ     { $$ = 7; }
     ;
 
 /* FUNCIONES */
@@ -426,10 +413,10 @@ bloque_estandar_delimitado:
     ;
 
 declaracion_funcion:
-    FUNCION IDENTIFICADOR parametros_funcion tipo_funcion {
+    FUNCTION IDENTIFICADOR parametros_funcion tipo_funcion {
         agregarSimbolo($2, $4, true, 0);
     }
-    | PROCEDIMIENTO IDENTIFICADOR parametros_funcion {
+    | FUNCTION IDENTIFICADOR parametros_funcion {
         agregarSimbolo($2, -1, true, 0);
         tipoFuncionActual = -1;
     }
@@ -441,15 +428,14 @@ bloque:
     ;
 
 linea_bloque:
-    nueva_linea
-    | expresion_bloque nueva_linea
+    expresion_bloque
     ;
 
 expresion_bloque:
     declaracion { $$ = 0; }
-    | ROMPER { $$ = 0; }
-    | CONTINUAR { $$ = 0; }
-    | SALIR { $$ = 0; }
+    | PRINT PAREN_IZQ expresion_operacion PAREN_DER { $$ = 0; }
+    | BREAK { $$ = 0; }
+    | CONTINUE { $$ = 0; }
     | incremento_decremento { $$ = $1; }
     | llamada_funcion { $$ = $1; }
     | asignacion { $$ = 0; }
@@ -477,19 +463,17 @@ expresion_bloque:
     ;
 
 retorno:
-    RETORNAR expresion_operacion { $$ = $2.tipo; }
-    | RETORNAR { $$ = -1; }
-    | DEVOLVER expresion_operacion { $$ = $2.tipo; }
-    | DEVOLVER { $$ = -1; }
+    RETURN expresion_operacion { $$ = $2.tipo; }
+    | RETURN { $$ = -1; }
     ;
 
 declaracion_lanzar:
-    LANZAR IDENTIFICADOR PAREN_IZQ LITERAL_CADENA PAREN_DER { $$ = 0; }
-    | LANZAR IDENTIFICADOR PAREN_IZQ PAREN_DER { $$ = 0; }
+    THROW IDENTIFICADOR PAREN_IZQ LITERAL_CADENA PAREN_DER { $$ = 0; }
+    | THROW IDENTIFICADOR PAREN_IZQ PAREN_DER { $$ = 0; }
     ;
 
 declaracion_afirmar:
-    AFIRMAR PAREN_IZQ expresion_operacion PAREN_DER {
+    ASSERT PAREN_IZQ expresion_operacion PAREN_DER {
         if ($3.tipo != 4 && $3.tipo != 0) {
             printf("Error de tipo incompatible en línea %d: la expresión de afirmación debe ser booleana\n", numeroLinea);
             hayErroresSintacticos = true;
@@ -504,7 +488,7 @@ tipo_funcion:
         tieneRetorno = false; 
         $$ = $2; 
     }
-    | DOS_PUNTOS TIPO_VACIO { 
+    | DOS_PUNTOS NULO { 
         tipoFuncionActual = -1; 
         $$ = -1; 
     }
@@ -518,7 +502,6 @@ parametros_funcion:
 seccion_parametros:
     parametro
     | parametro COMA seccion_parametros
-    | parametro COMA nueva_linea seccion_parametros
     ;
 
 parametro:
@@ -544,10 +527,10 @@ parametro:
 
 /* BUCLES */
 bucle:
-    PARA PAREN_IZQ declaracion_for PAREN_DER bloque_estandar_delimitado { $$ = 0; }
+    FOR PAREN_IZQ declaracion_for PAREN_DER bloque_estandar_delimitado { $$ = 0; }
     | expresion_while bloque_estandar_delimitado { $$ = 0; }
-    | HACER bloque_estandar_delimitado expresion_while PUNTO_COMA { $$ = 0; }
-    | REPETIR bloque_estandar_delimitado HASTA PAREN_IZQ expresion_operacion PAREN_DER PUNTO_COMA {
+    | DO bloque_estandar_delimitado expresion_while PUNTO_COMA { $$ = 0; }
+    | DO bloque_estandar_delimitado ELSEIF PAREN_IZQ expresion_operacion PAREN_DER PUNTO_COMA {
         if ($5.tipo != 4 && $5.tipo != 0) {
             printf("Error de tipo incompatible en línea %d: la condición debe ser booleana\n", numeroLinea);
             hayErroresSintacticos = true;
@@ -599,7 +582,7 @@ iteracion_for:
     ;
 
 expresion_while:
-    MIENTRAS PAREN_IZQ expresion_operacion PAREN_DER {
+    WHILE PAREN_IZQ expresion_operacion PAREN_DER {
         if ($3.tipo != 4 && $3.tipo != 0) {
             printf("Error de tipo incompatible en línea %d: la condición no es un valor booleano\n", numeroLinea);
             hayErroresSintacticos = true;
@@ -620,7 +603,7 @@ declaracion_if_else:
     ;
 
 declaracion_if:
-    SI PAREN_IZQ expresion_operacion {
+    IF PAREN_IZQ expresion_operacion {
         if ($3.tipo != 4 && $3.tipo != 0) {
             printf("Error de tipo incompatible en línea %d: la condición no es un valor booleano\n", numeroLinea);
             hayErroresSintacticos = true;
@@ -629,25 +612,25 @@ declaracion_if:
     ;
 
 declaracion_else:
-    SINO bloque_estandar_delimitado
+    ELSE bloque_estandar_delimitado
     ;
 
 declaracion_else_if:
-    SINO declaracion_if
-    | declaracion_else_if SINO declaracion_if
+    ELSEIF declaracion_if
+    | declaracion_else_if ELSEIF declaracion_if
     | declaracion_else_if declaracion_else
     ;
 
 declaracion_switch:
-    SEGUN PAREN_IZQ expresion_operacion PAREN_DER LLAVE_IZQ nueva_linea bloque_switch {
-        if ($3.tipo != $7 && $7 != 0 && $3.tipo != 0) {
+    SWITCH PAREN_IZQ expresion_operacion PAREN_DER LLAVE_IZQ bloque_switch {
+        if ($3.tipo != $6 && $6 != 0 && $3.tipo != 0) {
             printf("Error de tipo incompatible en línea %d: los tipos de los casos no son compatibles con el tipo del valor del switch\n", numeroLinea);
             hayErroresSintacticos = true;
         }
     } LLAVE_DER { 
         tieneCasoDefecto = false; 
     }
-    | SEGUN PAREN_IZQ expresion_operacion PAREN_DER LLAVE_IZQ nueva_linea LLAVE_DER
+    | SWITCH PAREN_IZQ expresion_operacion PAREN_DER LLAVE_IZQ LLAVE_DER
     ;
 
 bloque_switch:
@@ -668,8 +651,8 @@ bloque_switch:
     ;
 
 linea_switch:
-    CASO expresion_operacion DOS_PUNTOS { iniciarBloque(); } bloque { terminarBloque(); $$ = $2.tipo; }
-    | DEFECTO DOS_PUNTOS { iniciarBloque(); } bloque {
+    CASE expresion_operacion DOS_PUNTOS { iniciarBloque(); } bloque { terminarBloque(); $$ = $2.tipo; }
+    | DEFAULT DOS_PUNTOS { iniciarBloque(); } bloque {
         terminarBloque();
         if (tieneCasoDefecto) {
             printf("Error de definición en línea %d: el switch tiene más de un caso por defecto\n", numeroLinea);
@@ -683,17 +666,16 @@ linea_switch:
 /* EXCEPCIONES */
 excepcion:
     try_catch { $$ = $1; }
-    | try_catch FINALMENTE bloque_estandar_delimitado { $$ = $1; }
     ;
 
 try_catch:
-    INTENTAR LLAVE_IZQ { 
+    TRY LLAVE_IZQ { 
         estaEnExcepcion = true; 
         iniciarBloque(); 
     } bloque LLAVE_DER { 
         estaEnExcepcion = false; 
         terminarBloque(); 
-    } CAPTURAR PAREN_IZQ IDENTIFICADOR PAREN_DER bloque_estandar_delimitado { $$ = 0; }
+    } CATCH PAREN_IZQ IDENTIFICADOR PAREN_DER bloque_estandar_delimitado { $$ = 0; }
     ;
 
 /* EXPRESIONES Y OPERACIONES */
@@ -712,11 +694,11 @@ datos_valor:
         $$.tieneValor = 1; 
         $$.valor = $1; 
     }
-    | VERDADERO { 
+    | TRUE { 
         $$.tipo = 4; 
         $$.tieneValor = 0; 
     }
-    | FALSO { 
+    | FALSE { 
         $$.tipo = 4; 
         $$.tieneValor = 0; 
     }
@@ -1082,4 +1064,3 @@ void limpiarTablaSimbolos() {
     }
     contadorSimbolos = 0;
 }
-
