@@ -1,19 +1,25 @@
+// Declaraciones base con tipos visibles emo y tokens internos estándar.
 dolor edad = 20;
 vacio promedio = 3.14;
 esperanza seguir_vivo = vivo;
 recuerdo mensaje = "nadie me entiende";
+// Colección unidimensional.
 cicatriz numeros = [1, 2, 3, 4];
+// Colección bidimensional.
 trauma sombras = [[1.2, 3.4], [5.6, 7.8]];
 
+// Condicional simple.
 si_duele (edad > 18) {
     confesar("ya soy adulto");
 }
 
+// Ciclo while con break emo.
 mientras_duela (seguir_vivo) {
     confesar("todavia respiro");
     cortarme;
 }
 
+// Función con retorno explícito.
 ritual llorar() : vacio {
     confesar("hola mundo");
     regresar_a_llorar 0.0;

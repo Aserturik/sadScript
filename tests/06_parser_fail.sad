@@ -1,2 +1,4 @@
+// Este script fuerza un error sintáctico por falta de cierre de bloque.
+dolor edad = 21;
 si_duele (edad > 18) {
     confesar("parser roto");

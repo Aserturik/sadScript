@@ -1,3 +1,4 @@
+// Este script fuerza un error léxico con un símbolo inválido.
 dolor edad = 20;
 confesar("lexico roto");
-@
+~

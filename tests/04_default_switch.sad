@@ -1,3 +1,4 @@
+// Cobertura del switch emo con caso y default.
 dolor edad = 18;
 
 segun_mi_animo (edad) {
