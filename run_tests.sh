@@ -26,8 +26,8 @@ fi
 
 declare -A expected_exit=(
 	["tests/01_happy.sad"]=0
-	["tests/02_lexer_error.sad"]=0
-	["tests/03_syntax_error.sad"]=0
+	["tests/02_lexer_ok.sad"]=0
+	["tests/03_syntax_ok.sad"]=0
 	["tests/04_default_switch.sad"]=0
 	["tests/05_lexer_fail.sad"]=1
 	["tests/06_parser_fail.sad"]=1
