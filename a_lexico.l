@@ -99,6 +99,13 @@ COMENTARIO_FIN      \*\/
  muerto                                 { return FALSE; }
  nulo                                   { return NULO; }
 
+                        /* OPERADORES DE REDUCCIÓN */
+ sum                                    { return OP_SUMA_REDUCCION; }
+ prod                                   { return OP_PROD_REDUCCION; }
+ max                                    { return OP_MAX_REDUCCION; }
+ min                                    { return OP_MIN_REDUCCION; }
+ prom                                   { return OP_PROM_REDUCCION; }
+
                         /* OPERADORES ARITMÉTICOS */
 \+\+                                   { return OP_INCREMENTO; }
 \+\=                                   { return OP_SUMA_ASIG; }

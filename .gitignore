@@ -1,0 +1,10 @@
+# Local Pi runtime state
+.atl/
+.pi/
+openspec/
+
+# Generated build artifacts
+lex.yy.c
+a_sintactico.tab.c
+a_sintactico.tab.h
+sadScript
