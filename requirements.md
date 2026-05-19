@@ -174,8 +174,8 @@ sadScript debe sentirse triste, cansado y existencial por fuera, pero seguir sie
 ### 7.2 Scripts de prueba
 
 - `tests/01_happy.sad`: programa válido con declaraciones, colecciones, `if`, `while` y función.
-- `tests/02_lexer_ok.sad`: programa válido de cobertura léxica.
-- `tests/03_syntax_ok.sad`: programa válido de cobertura sintáctica.
+- `tests/02_typo_keyword_fail.sad`: error sintáctico por palabra reservada mal escrita.
+- `tests/03_missing_semicolon_fail.sad`: error sintáctico por punto y coma faltante.
 - `tests/04_default_switch.sad`: `switch` con `caso` y `por_defecto_mio`.
 - `tests/05_lexer_fail.sad`: error léxico intencional con carácter inválido.
 - `tests/06_parser_fail.sad`: error sintáctico intencional por bloque sin cierre.

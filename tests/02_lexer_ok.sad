@@ -1,6 +1,0 @@
-// Cobertura válida del lexer.
-dolor edad = 20;
-confesar("segundo script");
-si_duele (edad == 20) {
-    confesar("todo bien");
-}

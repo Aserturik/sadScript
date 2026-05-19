@@ -9,6 +9,8 @@ bool tieneErrores = false;
 bool estaEnComentario = false;
 int numeroLinea = 1;
 int numeroColumna = 1;
+int tokenLinea = 1;
+int tokenColumna = 1;
 
 /* Función para actualizar posición en el código fuente */
 void actualizarPosicion() {
@@ -24,11 +26,17 @@ void actualizarPosicion() {
 }
 
 /* Función para reportar errores léxicos */
-void reportarErrorLexico(const char* token) {
+void reportarErrorLexico(int linea, int columna, const char* token) {
     printf("Error léxico en línea %d, columna %d: token no reconocido '%s'\n", 
-           numeroLinea, numeroColumna, token);
+           linea, columna, token);
     tieneErrores = true;
 }
+
+#define YY_USER_ACTION do { \
+    tokenLinea = numeroLinea; \
+    tokenColumna = numeroColumna; \
+    actualizarPosicion(); \
+} while (0);
 %}
 
 /* Definiciones de expresiones regulares básicas */
@@ -59,7 +67,7 @@ COMENTARIO_FIN      \*\/
 {COMENTARIO_LINEA}                      { /* Ignorar comentarios de línea */ }
 {COMENTARIO_INICIO}                     { BEGIN(COMENTARIO_MULTI); }
 <COMENTARIO_MULTI>{COMENTARIO_FIN}      { BEGIN(INITIAL); }
-<COMENTARIO_MULTI>\n                    { numeroLinea++; numeroColumna = 1; }
+<COMENTARIO_MULTI>\n                    { /* Ignorar salto de línea dentro del comentario */ }
 <COMENTARIO_MULTI>.                     { /* Ignorar contenido del comentario */ }
 
                         /* PALABRAS RESERVADAS - TIPOS DE DATOS */
@@ -162,60 +170,53 @@ no                                     { return OP_NO_PALABRA; }
 \@                                     { return ARROBA; }
 
                         /* IDENTIFICADORES Y LITERALES */
-{IDENTIFICADOR}                        { 
-                                         yylval.cadena = strdup(yytext); 
-                                         return IDENTIFICADOR; 
+{IDENTIFICADOR}                        {
+                                         yylval.cadena = strdup(yytext);
+                                         return IDENTIFICADOR;
                                        }
 
-{NUMERO_CIENTIFICO}                    { 
-                                         yylval.numero_decimal = atof(yytext); 
-                                         return LITERAL_DECIMAL; 
+{NUMERO_CIENTIFICO}                    {
+                                         yylval.numero_decimal = atof(yytext);
+                                         return LITERAL_DECIMAL;
                                        }
 
-{NUMERO_DECIMAL}                       { 
-                                         yylval.numero_decimal = atof(yytext); 
-                                         return LITERAL_DECIMAL; 
+{NUMERO_DECIMAL}                       {
+                                         yylval.numero_decimal = atof(yytext);
+                                         return LITERAL_DECIMAL;
                                        }
 
-{NUMERO_ENTERO}                        { 
-                                         yylval.numero_entero = atoi(yytext); 
-                                         return LITERAL_ENTERO; 
+{NUMERO_ENTERO}                        {
+                                         yylval.numero_entero = atoi(yytext);
+                                         return LITERAL_ENTERO;
                                        }
 
-{CADENA_LITERAL}                       { 
+{CADENA_LITERAL}                       {
                                          /* Remover comillas y guardar contenido */
-                                         yylval.cadena = strndup(yytext + 1, strlen(yytext) - 2); 
-                                         return LITERAL_CADENA; 
+                                         yylval.cadena = strndup(yytext + 1, strlen(yytext) - 2);
+                                         return LITERAL_CADENA;
                                        }
 
-{CARACTER_LITERAL}                     { 
+{CARACTER_LITERAL}                     {
                                          /* Guardar el carácter sin comillas */
-                                         yylval.caracter = yytext[1]; 
-                                         return LITERAL_CARACTER; 
+                                         yylval.caracter = yytext[1];
+                                         return LITERAL_CARACTER;
                                        }
 
                         /* MANEJO DE SALTOS DE LÍNEA Y ESPACIOS */
- \n                                     { 
-                                          numeroLinea++; 
-                                          numeroColumna = 1; 
-                                        }
+ \n                                     { /* El avance de línea/columna lo hace YY_USER_ACTION */ }
 
-{espacio_blanco}+                      { 
-                                         /* Actualizar columna y ignorar espacios */ 
-                                         numeroColumna += yyleng;
-                                       }
+{espacio_blanco}+                      { /* Ignorar espacios en blanco */ }
 
                         /* MANEJO DE ERRORES LÉXICOS */
 .                                      { 
-                                         reportarErrorLexico(yytext);
-                                         numeroColumna++;
+                                         reportarErrorLexico(tokenLinea, tokenColumna, yytext);
                                        }
 
 %%
 
 /* Función requerida por Flex para indicar fin de archivo */
-int yywrap() { 
-    return 1; 
+int yywrap() {
+    return 1;
 }
 
 /* Función para obtener el número de línea actual */

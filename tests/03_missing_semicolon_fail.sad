@@ -1,0 +1,3 @@
+// Error sintáctico por punto y coma faltante tras la declaración.
+dolor edad = 21
+confesar("falta punto y coma");

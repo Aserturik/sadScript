@@ -1,0 +1,5 @@
+// Error sintáctico por palabra reservada mal escrita.
+dolor edad = 20;
+si_duel (edad > 18) {
+    confesar("typo en keyword");
+}

@@ -1,5 +1,5 @@
 // Cobertura del switch emo con caso y default.
-dolor edad = 18;
+dolor edad = 15+3-0;
 
 segun_mi_animo (edad) {
     caso 18:

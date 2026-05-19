@@ -1,8 +1,0 @@
-// Cobertura válida del parser con try/catch emo.
-dolor edad = 21;
-
-intentar_sentir {
-    confesar("entro y me sostengo");
-} romperse(error) {
-    confesar("sigo igual");
-}

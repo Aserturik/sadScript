@@ -26,11 +26,27 @@ fi
 
 declare -A expected_exit=(
 	["tests/01_happy.sad"]=0
-	["tests/02_lexer_ok.sad"]=0
-	["tests/03_syntax_ok.sad"]=0
+	["tests/02_typo_keyword_fail.sad"]=1
+	["tests/03_missing_semicolon_fail.sad"]=1
 	["tests/04_default_switch.sad"]=0
 	["tests/05_lexer_fail.sad"]=1
 	["tests/06_parser_fail.sad"]=1
+)
+
+declare -A expected_message=(
+	["tests/01_happy.sad"]="Análisis léxico y sintáctico completado sin errores."
+	["tests/02_typo_keyword_fail.sad"]="syntax error, unexpected LLAVE_IZQ, expecting PUNTO_COMA"
+	["tests/03_missing_semicolon_fail.sad"]="syntax error, unexpected PRINT, expecting PUNTO_COMA"
+	["tests/05_lexer_fail.sad"]="Error léxico en línea 4, columna 3: token no reconocido '~'"
+	["tests/06_parser_fail.sad"]="syntax error, unexpected end of file"
+)
+
+declare -A expected_stream=(
+	["tests/01_happy.sad"]="stdout"
+	["tests/02_typo_keyword_fail.sad"]="stderr"
+	["tests/03_missing_semicolon_fail.sad"]="stderr"
+	["tests/05_lexer_fail.sad"]="stdout"
+	["tests/06_parser_fail.sad"]="stderr"
 )
 
 shopt -s nullglob
@@ -69,11 +85,39 @@ for test_file in "${TEST_FILES[@]}"; do
 		continue
 	fi
 
-	if [[ "$actual" -eq "$expected" ]]; then
+	message_ok=true
+	stream="${expected_stream[$test_file]:-stdout}"
+	expected_text="${expected_message[$test_file]:-}"
+
+	if [[ "$actual" -ne "$expected" ]]; then
+		message_ok=false
+		failure_reason="esperado=$expected, real=$actual"
+	elif [[ -n "$expected_text" ]]; then
+		if [[ "$stream" == "stdout" ]]; then
+			if ! grep -Fq "$expected_text" "$out_file"; then
+				message_ok=false
+				failure_reason="stdout no contiene el mensaje esperado"
+			fi
+		else
+			if ! grep -Fq "$expected_text" "$err_file"; then
+				message_ok=false
+				failure_reason="stderr no contiene el mensaje esperado"
+			fi
+		fi
+	fi
+
+	if [[ "$message_ok" == true ]]; then
+		if [[ "$expected" -eq 0 ]] && [[ -s "$err_file" ]]; then
+			message_ok=false
+			failure_reason="se esperaba stderr vacío"
+		fi
+	fi
+
+	if [[ "$message_ok" == true ]]; then
 		echo "[PASS] $(basename "$test_file") (exit=$actual)"
 		passed=$((passed + 1))
 	else
-		echo "[FAIL] $(basename "$test_file") (esperado=$expected, real=$actual)"
+		echo "[FAIL] $(basename "$test_file") ($failure_reason)"
 		if [[ -s "$out_file" ]]; then
 			sed 's/^/  stdout: /' "$out_file"
 		fi
